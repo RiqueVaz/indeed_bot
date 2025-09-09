@@ -3,14 +3,14 @@
 
 
 search:
-  base_url: "https://fr.indeed.com/jobs?q=developer&l=Ile-de-France&sc=0kf%3Aattr%285QWDV%29%3B&radius=25"
+  base_url: "https://br.indeed.com/jobs?q=Automa%C3%A7%C3%A3o&l=Remoto&radius=25&from=searchOnDesktopSerp&cf-turnstile-response=0.Up-6PW7bbevUyN84wfgVNTSdVe9_7DHdFiuzgy-w-lEkICKUbyoJtLCofXwbiYTVphw-0NQGMTh80xiykbjuI51R1OAeQxFM8WvAnk66C21tMqqILJ8VHUHTCgwYXJK8g-a6zwpVPMi2dtKtDvXZZng-As1KdrKx8G4lSCluPwy7LjnvWy-nLBSwsoxH8Aknkex_C5jTHpzU6o5Vzd9AfzZRbyzVji9j6WR0CarqpWh6e9w57-90wlcn2Me_O3xYD6QusS2rM8uyP-_eczu-Z2DtJe6MFmJAAQmbzyGfil4Zpv2u7l_6N-JMsWdsjortGqRepwxJ-Q4zjI60UHoAf3ImZjZNwtR0wldc74F38pzICe4OzaNHXzjY_7kY3oNy0wseDo498CbmVFry7og85nv4LfIMsY7QpQmPBO851o4pjyVaALmcRoMkEN6VYSvaixJB1YmrDNKjBhrbqoVr-OwOrWvifE4NIci394Q0rNZGD7-U6Rb8BfXfZWnWqYe5SynZlnbqCEmYT1qG3aOP6ArtL1C14ZCe5jI_a3bLJ5OHOBuASWx4IcgFb7THHC9L9gHF6BXp_2gpyRiemGaG0PmohEU1yO72G_swHyHPZ-gp7iQGUhn9131RV6kYvSxvIq2UEpSDgWr4wo2epcPwu73jS-wN_HzgiFxpiYy_OK1ae02j9MDBFvAUmv88dMHk8cC6E609eJv7uV8VQ7YgXKg9StqxG0FSO7bqk8IcP0mRNXKQtGeByGzJFiOkZiMjqK4eLTdWoXB68MhVX26rGXLUyAlLSDBMgw1aR2gU3w0kH-Ty_4rLEfsCmusy_Tg7ctsEAylMGP-3Po5xRG3kdTQl6PceGfZpp4nsyNLzFJ2QFKYFeoajeJFwZpqYpmbuHFc0wD7GYeitgj_oTV46xx5PTLVSGyayY6YkH34dsKn7ddrF8nq7CPBSbM39AcsJ.IG4t3DIQlg54AMNWB7QRLA.d0aa749ad090e029cb38c84ea6314bbd12c531f1c4443b03985e18848e4e171b&vjk=204bc0a6e5311cf6"
 
   start: 0
   end: 100 # default is 100, you can set it to 1000 or more for larger searches (not recommanded though)
 
 camoufox:
   user_data_dir: "user_data_dir"
-  language: "fr" # uk, us, fr, de, es, it, nl, pt, pl, ro, tr, ru, cn etc...
+  language: "br" # uk, us, fr, de, es, it, nl, br, pl, ro, tr, ru, cn etc...
 
 
 

@@ -1,118 +1,119 @@
-# Indeed Auto-Apply Bot
+# 🤖 Bot de Candidatura Automática - Indeed Brasil
 
-**WARNING:**  
-This guide explains how to use this bot. Use at your own risk. Indeed may change their website or introduce new protections (such as captchas or anti-bot measures) at any time, which could break this tool or result in your account being restricted. This is for educational purposes only.
+Bot automatizado para se candidatar a vagas no Indeed Brasil usando Camoufox.
+
+## 📋 Funcionalidades
+
+- ✅ Busca automática de vagas no Indeed Brasil
+- ✅ Candidaturas automáticas com preenchimento de formulários
+- ✅ Suporte completo ao português brasileiro
+- ✅ Modo stealth para evitar detecção
+- ✅ Sistema de logs detalhado
+- ✅ Configuração flexível via YAML
+
+## 🚀 Instalação
+
+1. **Instalar dependências:**
+```bash
+pip install -r requirements.txt
+```
+
+2. **Configurar o arquivo `config.yaml`:**
+   - Edite a URL de busca com seus critérios
+   - Configure o diretório de dados do usuário
+   - Ajuste os parâmetros de busca
+
+## ⚙️ Configuração
+
+### config.yaml
+
+```yaml
+search:
+  base_url: "https://br.indeed.com/jobs?q=SEU_CARGO&l=SUA_CIDADE&radius=25"
+  start: 0
+  end: 100
+
+camoufox:
+  user_data_dir: "user_data_dir"
+  language: "br"
+```
+
+### Parâmetros de Busca
+
+- **q**: Palavra-chave da vaga (ex: "Desenvolvedor Python")
+- **l**: Localização (ex: "São Paulo, SP" ou "Remoto")
+- **radius**: Raio de busca em km
+- **start/end**: Intervalo de páginas para buscar
+
+## 🎯 Como Usar
+
+1. **Primeira execução:**
+```bash
+python indeed_bot.py
+```
+
+2. **Login manual:**
+   - O bot abrirá a página de login do Indeed
+   - Faça login manualmente
+   - Feche o navegador e execute novamente
+
+3. **Execução automática:**
+   - O bot buscará vagas automaticamente
+   - Se candidatará a todas as vagas "Indeed Apply"
+   - Salvará logs de todas as ações
+
+## 📊 Logs
+
+Os logs são salvos em `indeed_apply.log` com:
+- Timestamp de cada ação
+- URLs das vagas processadas
+- Status das candidaturas (sucesso/falha)
+- Mensagens de erro detalhadas
+
+## ⚠️ Considerações Importantes
+
+- **Respeite os termos de uso** do Indeed
+- **Use com moderação** para evitar bloqueios
+- **Configure limites** de candidaturas por dia
+- **Revise as vagas** antes de aplicar automaticamente
+- **Mantenha seu perfil atualizado**
+
+## 🔧 Solução de Problemas
+
+### Erro de Login
+- Verifique se fez login manualmente na primeira execução
+- Limpe o diretório `user_data_dir` e tente novamente
+
+### Cloudflare Protection
+- Se aparecer proteção Cloudflare, clique manualmente
+- O bot aguardará você resolver
+
+### Vagas não encontradas
+- Verifique se a URL de busca está correta
+- Teste a busca manualmente no Indeed
+
+## 📝 Exemplo de Uso
+
+```bash
+# 1. Instalar dependências
+pip install -r requirements.txt
+
+# 2. Configurar config.yaml com seus critérios
+# 3. Executar o bot
+python indeed_bot.py
+
+# 4. Fazer login manual na primeira execução
+# 5. Executar novamente para automação
+python indeed_bot.py
+```
+
+## 🆘 Suporte
+
+Para problemas ou dúvidas:
+1. Verifique os logs em `indeed_apply.log`
+2. Confirme se a configuração está correta
+3. Teste a busca manualmente no Indeed
 
 ---
 
-## Features
-
-- Automatically finds and applies to jobs on Indeed with "Indeed Apply" .
-- Uses Camoufox for browser automation (bypass Cloudfare, Captch bot)
-- Handles multi-step application forms, including resume upload and personal info.
-
-## Prerequisites
-
-- Python 3.8+
-- [Camoufox](https://github.com/meteor314/camoufox) installed and configured
-- An Indeed account with:
-  - Your CV already uploaded
-  - Your name, address, and phone number filled in your Indeed profile
-
----
-
-## Setup
-
-1. **Clone this repository** and install dependencies:
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-2. **Edit `config.yaml`:**
-
-    Example:
-    ```yaml
-    camoufox:
-      user_data_dir: "user_data_dir" # by default, no need to change this value
-      language: "fr"  # or "uk", "de", etc. make sure to update this value
-
-    search:
-      base_url: "https://fr.indeed.com/jobs?q=python+developer&l=Paris"
-      start: 0
-      end: 100
-    ```
-
-    - `user_data_dir`: Path to your Chrome user data directory (to keep your Indeed session).
-    - `language`: Your Indeed site language code (e.g., "fr" for France, "uk" for United Kingdom) etc..
-    - `base_url`: The Indeed search URL for your job search.
-    - `start`/`end`: Pagination range (should be multiples of 10).
-
-3. **How to get your `base_url`:**
-
-    - Go to [Indeed](https://www.indeed.com/) in your browser.
-    - Select your search options (job title, location, remote working, type of work, etc.).
-    - Click on **Find jobs**.
-    - Copy the URL from your browser's address bar.
-    - Paste this URL as the value for `base_url` in your `config.yaml`.
-
-    ![How to get your base_url](assets/Readme.png)
-
-4. **Upload your CV to Indeed:**
-    - Go to your Indeed profile and upload your CV.
-    - Make sure your name, address, and phone number are filled in. 
-    - This bot will use this information to apply for jobs. So make sure they are filled in correctly otherwise the bot will not be able to apply for jobs.
-
----
-
-## First Run
-
-1. **Login to Indeed manually:**
-    - Run the bot:
-      ```bash
-      python indeed_bot.py
-      ```
-    - If not logged in, the bot will open Indeed and prompt you to log in manually.
-    - After logging in, close the bot and restart it.
-
-2. **Run the bot again:**
-    - The bot will now use your saved session to search and apply for jobs. 
-    - All your session data (cookies, login info) will be preserved in the `user_data_dir` specified in `config.yaml`.
-
-
-## Usage
-
-- The bot will:
-  - Visit each search results page.
-  - Collect all jobs with "Indeed Apply".
-  - For each job:
-    - Open the job page in a new tab.
-    - Click "Apply" or "Postuler maintenant".
-    - Step through the application wizard, selecting your uploaded CV and clicking "Continue"/"Submit".
-    - Log the result in `indeed_apply.log`.
-
-
-## Notes & Limitations
-
-- This bot only works for jobs with "Indeed Apply" (Candidature simplifiée).
-- If you encounter captchas or anti-bot protections, this bot should handle them automatically, but you may need to solve them manually.
-- Indeed may change their website at any time, which could break this bot.
-- Use responsibly and do not spam applications.
-- This program is a guide on how to automate job applications,  you need to make some modifications to the code to make it work for your needs.
-
----
-
-## Troubleshooting
-
-- If the bot gets stuck or fails to apply:
-  - Check `indeed_apply.log` for errors.
-  - Make sure your CV and personal info are uploaded to Indeed.
-  - Try increasing wait times if your internet is slow.
-
----
-
-## Disclaimer
-
-This project is not affiliated with Indeed. Use at your own risk.
-
-## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details
+**⚠️ Aviso Legal**: Este software é fornecido "como está" sem garantias. O uso é de sua responsabilidade. Respeite os termos de uso do Indeed e use com moderação.

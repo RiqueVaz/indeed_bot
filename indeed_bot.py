@@ -55,110 +55,64 @@ def apply_to_job(browser, job_url, language, logger):
         page.goto(job_url)
         page.wait_for_load_state("domcontentloaded")
         time.sleep(3)
-        # Try to find the apply button using robust, language-agnostic selectors
-        apply_btn = None
-        for _ in range(20):
-            # 1. Try button with a span with the unique Indeed Apply class (often css-1ebo7dz)
-            apply_btn = page.query_selector(
-                'button:has(span[class*="css-1ebo7dz"])')
-            # 2. Fallback: first visible button with a span containing "Postuler" or "Apply"
-            if not apply_btn:
-                apply_btn = page.query_selector(
-                    'button:visible:has-text("Postuler")')
-            if not apply_btn:
-                apply_btn = page.query_selector(
-                    'button:visible:has-text("Apply")')
-            # 3. Fallback: first visible button on the page (avoid close/cancel if possible)
-            if not apply_btn:
-                btns = page.query_selector_all('button:visible')
-                for btn in btns:
-                    label = (btn.get_attribute("aria-label") or "").lower()
-                    text = (btn.inner_text() or "").lower()
-                    if "close" in label or "cancel" in label or "fermer" in label or "annuler" in label:
-                        continue
-                    if "postuler" in text or "apply" in text or btn.is_visible():
-                        apply_btn = btn
-                        break
-            if apply_btn:
-                break
-            time.sleep(0.5)
-        if apply_btn:
-            click_and_wait(apply_btn, 5)
-        else:
-            logger.warning(
-                f"No Indeed Apply button found for {job_url}")
+        
+        # Step 1: Click the Indeed Apply button using XPath
+        apply_btn = page.query_selector('xpath=//*[@id="indeedApplyButton"]')
+        if not apply_btn:
+            logger.warning(f"Indeed Apply button not found for {job_url}")
             page.close()
             return False
+        
+        click_and_wait(apply_btn, 5)
+        logger.info(f"Clicked Indeed Apply button for {job_url}")
 
-        # add timeout for the wizard loop
+        # Step 2: Loop through "Continuar" buttons until we find "Enviar sua candidatura"
         start_time = time.time()
         while True:
             if time.time() - start_time > 40:
-                logger.warning(
-                    f"Timeout applying to {job_url}, closing tab and moving to next.")
+                logger.warning(f"Timeout applying to {job_url}, closing tab and moving to next.")
                 break
-            current_url = page.url
-            # Resume step: select resume card if present
-            resume_card = page.query_selector(
-                '[data-testid="FileResumeCardHeader-title"]')
-            if resume_card:
-                # Click the resume card (or its parent if needed)
-                try:
-                    resume_card.click()
-                except Exception:
-                    parent = resume_card.evaluate_handle(
-                        'node => node.parentElement')
-                    if parent:
-                        parent.click()
-                time.sleep(1)
-                continuer_btn = None
-                btns = page.query_selector_all('button:visible')
-                for btn in btns:
-                    text = (btn.inner_text() or "").lower()
-                    if "continuer" in text or "continue" in text:
-                        continuer_btn = btn
-                        break
-                if continuer_btn:
-                    click_and_wait(continuer_btn, 3)
-                    continue  # go to next step
-
-            # try to find a submit button ( dynamic text) idk if it's working
+            
+            # Check if we have the "return to search" button (success indicator)
+            return_btn = page.query_selector('xpath=//*[@id="returnToSearchButton"]')
+            if return_btn:
+                logger.info(f"Successfully applied to {job_url} - return button found")
+                break
+            
+            # Look for "Enviar sua candidatura" button
             submit_btn = None
             btns = page.query_selector_all('button:visible')
             for btn in btns:
-                text = (btn.inner_text() or "").lower()
-                if (
-                    "déposer ma candidature" in text or
-                    "soumettre" in text or
-                    "submit" in text or
-                    "apply" in text or
-                    "bewerben" in text or  # German
-                    "postular" in text     # Spanish
-                ):
+                text = (btn.inner_text() or "").strip()
+                if "Enviar sua candidatura" in text:
                     submit_btn = btn
                     break
-            # fallback: last visible button (often the submit)
-            if not submit_btn and btns:
-                submit_btn = btns[-1]
+            
             if submit_btn:
                 click_and_wait(submit_btn, 3)
-                logger.info(f"Applied successfully to {job_url}")
-                break
-
-            # fallback: try to find a visible and enabled button to continue (other stesp)
-            btn = page.query_selector(
-                'button[type="button"]:not([aria-disabled="true"]), button[type="submit"]:not([aria-disabled="true"])')
-            if btn:
-                click_and_wait(btn, 3)
-                if "confirmation" in page.url or "submitted" in page.url:
-                    logger.info(f"Applied successfully to {job_url}")
+                logger.info(f"Clicked 'Enviar sua candidatura' for {job_url}")
+                time.sleep(2)  # Wait for the return button to appear
+                continue
+            
+            # Look for "Continuar" button
+            continue_btn = None
+            for btn in btns:
+                text = (btn.inner_text() or "").strip()
+                if "Continuar" in text:
+                    continue_btn = btn
                     break
+            
+            if continue_btn:
+                click_and_wait(continue_btn, 3)
+                logger.info(f"Clicked 'Continuar' for {job_url}")
+                time.sleep(2)
             else:
-                logger.warning(
-                    f"No continue/submit button found at {current_url}")
+                logger.warning(f"No 'Continuar' or 'Enviar sua candidatura' button found for {job_url}")
                 break
+        
         page.close()
         return True
+        
     except Exception as e:
         logger.error(f"Error applying to {job_url}: {e}")
         page.close()
@@ -185,14 +139,14 @@ with Camoufox(user_data_dir=user_data_dir,
     ppid_cookie = next(
         (cookie for cookie in cookies if cookie['name'] == 'PPID'), None)
     if not ppid_cookie:
-        print("Token not found, please log in to Indeed first.")
-        print("Redirecting to login page...")
-        print("You need  to restart the bot after logging in.")
+        print("Token não encontrado, por favor faça login no Indeed primeiro.")
+        print("Redirecionando para página de login...")
+        print("Você precisa reiniciar o bot após fazer login.")
         page.goto(
             "https://secure.indeed.com/auth?hl=" + language)
         time.sleep(1000)  # wait for manual login
     else:
-        print("Token found, proceeding with job search...")
+        print("Token encontrado, prosseguindo com busca de vagas...")
         search_config = config.get("search", {})
         base_url = search_config.get("base_url", "")
         start = search_config.get("start", "")
@@ -207,46 +161,46 @@ with Camoufox(user_data_dir=user_data_dir,
 
         all_job_links = []
         for url in listURL:
-            print(f"Visiting URL: {url}")
+            print(f"Visitando URL: {url}")
             page.goto(url)
             page.wait_for_load_state("domcontentloaded")
             print(
-                "Waiting for page to load, if any cloudflare protection button appears... please click it.")
+                "Aguardando página carregar, se aparecer algum botão de proteção Cloudflare... clique nele.")
             time.sleep(10)
 
             try:
                 links = collect_indeed_apply_links(page, language)
                 all_job_links.extend(links)
-                print(f"Found {len(links)} Indeed Apply jobs on this page.")
+                print(f"Encontradas {len(links)} vagas Indeed Apply nesta página.")
             except Exception as e:
-                print("Error extracting jobs:", e)
+                print("Erro ao extrair vagas:", e)
             time.sleep(5)
 
-        print(f"Total Indeed Apply jobs found: {len(all_job_links)}")
+        print(f"Total de vagas Indeed Apply encontradas: {len(all_job_links)}")
         for job_url in all_job_links:
-            print(f"Applying to: {job_url}")
+            print(f"Candidatando-se a: {job_url}")
             success = apply_to_job(browser, job_url, language, logger)
             if not success:
-                logger.error(f"Failed to apply to {job_url}")
+                logger.error(f"Falha ao se candidatar a {job_url}")
             time.sleep(5)
         all_job_links = []
         for url in listURL:
-            print(f"Visiting URL: {url}")
+            print(f"Visitando URL: {url}")
             page.goto(url)
             page.wait_for_load_state("domcontentloaded")
             time.sleep(7)
             try:
                 links = collect_indeed_apply_links(page, language)
                 all_job_links.extend(links)
-                print(f"Found {len(links)} Indeed Apply jobs on this page.")
+                print(f"Encontradas {len(links)} vagas Indeed Apply nesta página.")
             except Exception as e:
-                print("Error extracting jobs:", e)
+                print("Erro ao extrair vagas:", e)
             time.sleep(5)
 
-        print(f"Total Indeed Apply jobs found: {len(all_job_links)}")
+        print(f"Total de vagas Indeed Apply encontradas: {len(all_job_links)}")
         for job_url in all_job_links:
-            print(f"Applying to: {job_url}")
+            print(f"Candidatando-se a: {job_url}")
             success = apply_to_job(browser, job_url, language, logger)
             if not success:
-                logger.error(f"Failed to apply to {job_url}")
+                logger.error(f"Falha ao se candidatar a {job_url}")
             time.sleep(5)
